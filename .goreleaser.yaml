@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+release:
+  make_latest: true
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+
+checksum:
+  name_template: "{{ .ArtifactName }}.sha256"
+  split: true
+
+archives:
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+      # {{- title .Os }}_
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- if eq .Os "Linux" }}linux{{ else }}{{ .Os }}{{ end }}_
+      {{- .Arch }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+sboms:
+  - documents:
+    #- "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}.cdx.sbom"
+      - "{{ .Binary }}_{{ .Os }}_{{ .Arch }}.cdx.sbom"
+    artifacts: binary
+    cmd: cyclonedx-gomod
+    args: ["app", "-licenses", "-json", "-output", "$document", "../"]
+    env:
+    - GOARCH={{ .Arch }}
+    - GOOS={{ .Os }}
+

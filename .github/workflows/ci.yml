@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  push:
+    paths-ignore:
+      - '**/README.md'
+      - '.gitignore'
+      - '.editorconfig'
+  pull_request:
+    paths-ignore:
+      - '**/README.md'
+      - '.gitignore'
+      - '.editorconfig'
+  workflow_dispatch:
+
+jobs:
+  onpush_job:
+    runs-on: ubuntu-latest
+    name: Scan and check
+    steps:
+      # run git checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # setup go
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+          check-latest: true
+
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.59
+
+      - name: govulncheck
+        uses: golang/govulncheck-action@v1
+        with:
+          go-version-input: 1.22
+          go-package: ./...
+
+      - name: Grype
+        uses: anchore/scan-action@v3
+        with:
+          path: "."
+          fail-build: true
+          severity-cutoff: negligible
+

@@ -26,6 +26,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -42,25 +43,40 @@ const (
 )
 
 var (
-	// AppVersion; set during build
-	AppVersion = "0.0.0"
+	// set during build
+	version = "0.0.0"
+	commit  = "dev"
+	date    = "dev"
+	builtBy = "manually"
 )
 
 func main() {
+	if err := run(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
 
-	var tlsConfig *tls.Config = nil
+func run() error {
+	var tlsConfig *tls.Config
 
 	dbname := flag.String("db", "admin", "database name")
 	cmdtls := flag.Bool("tls", false, "use mTLS")
 	cmdhello := flag.Bool("hello", false, "readiness & startup probe")
 	cmdping := flag.Bool("ping", false, "liveness probe")
+	cmdversion := flag.Bool("version", false, "version")
 
 	flag.Parse()
+
+	if *cmdversion {
+		fmt.Printf("mongodb-k8s-probe %s, commit %s, date %s, built by: %s\n", version, commit, date, builtBy)
+		return nil
+	}
 
 	// cmdhello and cmdping are mutually exclusive
 	if (*cmdhello && *cmdping) || (!*cmdhello && !*cmdping) {
 		flag.PrintDefaults()
-		os.Exit(1)
+		return errors.New("hello and ping are mutually exclusive")
 	}
 
 	mhostname := os.Getenv("HOSTNAME")
@@ -77,26 +93,26 @@ func main() {
 		// Loads CA certificate file
 		caCert, err := os.ReadFile(caFile)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		// Loads certificate file
 		clientCert, err := os.ReadFile(certFile)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		caCertPool := x509.NewCertPool()
 		if ok := caCertPool.AppendCertsFromPEM(caCert); !ok {
-			panic("Error: CA file must be in PEM format")
+			return errors.New("certificate CA file must be in PEM format")
 		}
 		// Loads client certificate files
 		cert, err := tls.X509KeyPair(clientCert, clientCert)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		tlsConfig = &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: true, // #nosec G402
 			RootCAs:            caCertPool,
 			Certificates:       []tls.Certificate{cert},
 			MinVersion:         tls.VersionTLS13,
@@ -108,7 +124,7 @@ func main() {
 	opts := options.Client().
 		ApplyURI(fmt.Sprintf("mongodb://%s:%s", mhostname, mport)).
 		SetServerAPIOptions(serverAPI).
-		SetAppName(fmt.Sprintf("mongodb-k8s-probe %s", AppVersion)).
+		SetAppName(fmt.Sprintf("mongodb-k8s-probe %s", version)).
 		SetTLSConfig(tlsConfig).
 		SetDirect(true).
 		SetConnectTimeout(10 * time.Second)
@@ -116,13 +132,13 @@ func main() {
 	// Create a new client and connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), opts)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// make sure we don't forget to disconnect from MongoDB
 	defer func() {
 		if err = client.Disconnect(context.TODO()); err != nil {
-			panic(err)
+			fmt.Fprintln(os.Stderr, err)
 		}
 	}()
 
@@ -130,19 +146,19 @@ func main() {
 		// Send a hello and confirm we're ok'ish
 		var result bson.M
 		if err := client.Database(*dbname).RunCommand(context.TODO(), bson.D{{Key: "hello", Value: 1}}).Decode(&result); err != nil {
-			panic(err)
+			return err
 		}
 
 		if !(result["isWritablePrimary"].(bool) || result["secondary"].(bool)) {
-			fmt.Fprintln(os.Stderr, "Not ready")
-			os.Exit(1)
+			return errors.New("not ready")
 		}
 	} else if *cmdping {
 		// Send a ping to confirm a successful connection
-		//if err := client.Database(*dbname).RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}); err != nil {
+		// if err := client.Database(*dbname).RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}); err != nil {
 		if err := client.Ping(context.TODO(), nil); err != nil {
-			fmt.Fprintln(os.Stderr, "Not alive")
-			os.Exit(1)
+			return errors.New("not alive")
 		}
 	}
+
+	return nil
 }

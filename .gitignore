@@ -1,4 +1,6 @@
 /mongodb-k8s-probe
+/dist
+/Makefile
 
 # Local .terraform directories
 **/.terraform/*
@@ -7,6 +9,10 @@
 # .tfstate files
 *.tfstate
 *.tfstate.*
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
 
 # Crash log files
 crash.log
@@ -26,19 +32,16 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 
-# Include override files you do wish to add to version control using negated pattern
-# !example_override.tf
-
-# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
-
-# Ignore CLI configuration files
-.terraformrc
-terraform.rc
-
 # Various
 ~$*
 *~
+
+# Vim-related files
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
 
 # Temp files
 *.tmp
