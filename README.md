@@ -5,7 +5,7 @@
 
 mongodb-k8s-probe is a super lightweight, fast and simple replacement for mongosh startup, readiness and liveness probes in Bitnami MongoDB Helm charts.
 
-The mongosh application is written in Node.js, and although compiled as a binary it's very slow to start, consumes a lot of resources for each and every readiness and liveness check. I've seen anywhere between x2 and x8 CPU & memory usage on an idle replicaset, and occasional timeouts.
+The mongosh application is written in Node.js, and although compiled as a binary it's very slow to start, consumes a lot of resources for each and every readiness and liveness check. I've seen anywhere between x2 and x8 CPU & memory usage on an idle replicaset, and occasional timeouts. To Top it off, mongosh by default also send telemetry data, which can slow it down, in particular if there's no Internet egress.
 
 ## Installation
 
@@ -14,7 +14,7 @@ Precompiled binaries are available in the [Releases section](https://github.com/
 ##### Options
 
  - `-db <database name>` - name of database to connect to, default is `admin` [optional, string]
- - `-tls` - connecting using mTLS, default is `false` [optional, bool]
+ - `-tls` - connect using mTLS, default is `false` [optional, bool]
  - `-hello` - readiness & startup probe, default is `false` [required, bool]
  - `-ping` - liveness probe, default is `false` [required, bool]
  - `-version` - display version and build information [optional, bool]
@@ -35,21 +35,20 @@ livenessProbe:
 
 customStartupProbe:
   initialDelaySeconds: 20
-  periodSeconds: 5
-  timeoutSeconds: 5
   failureThreshold: 30
+  periodSeconds: 5
   successThreshold: 1
+  timeoutSeconds: 5
   exec:
     command:
-      - /custom/mongodb-rk8s-probe
+      - /custom/mongodb-k8s-probe
       - --hello
 
 customReadinessProbe:
-  #initialDelaySeconds: 40
-  periodSeconds: 10
-  timeoutSeconds: 5
   failureThreshold: 6
+  periodSeconds: 10
   successThreshold: 1
+  timeoutSeconds: 5
   exec:
     command:
       - /custom/mongodb-k8s-probe
@@ -57,7 +56,6 @@ customReadinessProbe:
 
 customLivenessProbe:
   failureThreshold: 6
-  #initialDelaySeconds: 40
   periodSeconds: 10
   successThreshold: 1
   timeoutSeconds: 10
@@ -101,7 +99,7 @@ You may want to add securityContext and resources sections to your production YA
 
  - [ ] adopt command-line options from mongosh
  - [ ] command-line options for certificate paths
- - [ | command-line options for hostname, port etc.
+ - [ ] command-line options for hostname, port etc.
  - [ ] environment variables for all options
  - [ ] replicaset checks instead of, or in addition to, ping() and hello()
 
