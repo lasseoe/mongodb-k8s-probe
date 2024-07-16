@@ -1,4 +1,4 @@
-module mongodb-k8s-probe
+module github.com/lasseoe/mongodb-k8s-probe
 
 go 1.22.5
 

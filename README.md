@@ -101,8 +101,8 @@ You may want to add securityContext and resources sections to your production YA
 
  - [ ] adopt command-line options from mongosh
  - [ ] command-line options for certificate paths
- - | | command-line options for hostname, port etc.
- - | | environment variables for all options
+ - [ | command-line options for hostname, port etc.
+ - [ ] environment variables for all options
  - [ ] replicaset checks instead of, or in addition to, ping() and hello()
 
 ## MIT License
