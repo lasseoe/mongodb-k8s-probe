@@ -42,7 +42,7 @@ customStartupProbe:
   exec:
     command:
       - /custom/mongodb-k8s-probe
-      - --hello
+      - -hello
 
 customReadinessProbe:
   failureThreshold: 6
@@ -52,7 +52,7 @@ customReadinessProbe:
   exec:
     command:
       - /custom/mongodb-k8s-probe
-      - --hello
+      - -hello
 
 customLivenessProbe:
   failureThreshold: 6
@@ -62,7 +62,7 @@ customLivenessProbe:
   exec:
     command:
       - /custom/mongodb-k8s-probe
-      - --ping
+      - -ping
 
 initContainers:
   - name: download-mongodb-k8s-probe
@@ -75,8 +75,8 @@ initContainers:
         #!/usr/bin/env bash -e
         wget -O /custom/mongodb-k8s-probe.tar.gz  \
         "https://github.com/lasseoe/mongodb-k8s-probe/releases/download/vX.X.X/mongodb-k8s-probe_linux_amd64.tar.gz"
-        tar -C /custom -xzvf mongodb-k8s-probe.tar.gz
-        rm mongodb-k8s-probe.tar.gz
+        tar -C /custom -xzvf /custom/mongodb-k8s-probe.tar.gz mongodb-k8s-probe
+        rm /custom/mongodb-k8s-probe.tar.gz
         chmod +x /custom/mongodb-k8s-probe
     volumeMounts:
       - mountPath: "/custom"
