@@ -14,6 +14,7 @@ Precompiled binaries are available in the [Releases section](https://github.com/
 ##### Options
 
  - `-db <database name>` - name of database to connect to, default is `admin` [optional, string]
+ - `-host <hostname/IP>` - name or IP of host to connect to, default is `127.0.0.1` [optional, string]
  - `-tls` - connect using mTLS, default is `false` [optional, bool]
  - `-hello` - readiness & startup probe, default is `false` [required, bool]
  - `-ping` - liveness probe, default is `false` [required, bool]

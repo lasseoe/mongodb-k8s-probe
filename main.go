@@ -60,7 +60,8 @@ func main() {
 func run() error {
 	var tlsConfig *tls.Config
 
-	dbname := flag.String("db", "admin", "database name")
+	cmddbname := flag.String("db", "admin", "database name")
+	cmdhost := flag.String("host", "", "hostname (default: \"127.0.0.1\")")
 	cmdtls := flag.Bool("tls", false, "use mTLS")
 	cmdhello := flag.Bool("hello", false, "readiness & startup probe")
 	cmdping := flag.Bool("ping", false, "liveness probe")
@@ -79,9 +80,12 @@ func run() error {
 		return errors.New("hello and ping are mutually exclusive")
 	}
 
-	mhostname := os.Getenv("HOSTNAME")
-	if len(mhostname) == 0 {
-		mhostname = "127.0.0.1"
+	// hostname order: command-line, env var, 127.0.0.1
+	if len(*cmdhost) == 0 {
+		*cmdhost = os.Getenv("HOSTNAME")
+		if len(*cmdhost) == 0 {
+			*cmdhost = "127.0.0.1"
+		}
 	}
 
 	mport := os.Getenv("MONGODB_PORT_NUMBER")
@@ -122,7 +126,7 @@ func run() error {
 	// Use the SetServerAPIOptions() method to set the Stable API version to 1
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().
-		ApplyURI(fmt.Sprintf("mongodb://%s:%s", mhostname, mport)).
+		ApplyURI(fmt.Sprintf("mongodb://%s:%s", *cmdhost, mport)).
 		SetServerAPIOptions(serverAPI).
 		SetAppName(fmt.Sprintf("mongodb-k8s-probe %s", version)).
 		SetTLSConfig(tlsConfig).
@@ -145,7 +149,7 @@ func run() error {
 	if *cmdhello {
 		// Send a hello and confirm we're ok'ish
 		var result bson.M
-		if err := client.Database(*dbname).RunCommand(context.TODO(), bson.D{{Key: "hello", Value: 1}}).Decode(&result); err != nil {
+		if err := client.Database(*cmddbname).RunCommand(context.TODO(), bson.D{{Key: "hello", Value: 1}}).Decode(&result); err != nil {
 			return err
 		}
 
@@ -154,7 +158,7 @@ func run() error {
 		}
 	} else if *cmdping {
 		// Send a ping to confirm a successful connection
-		// if err := client.Database(*dbname).RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}); err != nil {
+		// if err := client.Database(*cmddbname).RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}); err != nil {
 		if err := client.Ping(context.TODO(), nil); err != nil {
 			return errors.New("not alive")
 		}
