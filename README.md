@@ -1,6 +1,7 @@
 # MongoDB Kubernetes Probe
 
 ![build](https://github.com/lasseoe/mongodb-k8s-probe/actions/workflows/ci.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lasseoe/mongodb-k8s-probe)](https://goreportcard.com/report/github.com/lasseoe/mongodb-k8s-probe)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 
 mongodb-k8s-probe is a super lightweight, fast and simple replacement for mongosh startup, readiness and liveness probes in Bitnami MongoDB Helm charts.
