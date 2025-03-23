@@ -41,7 +41,7 @@ linters-settings:
     # Such cases aren't reported by default.
     # Default: false
     check-type-assertions: true
-  gofmt:
+  #gofmt:
     # Apply the rewrite rules to the source before reformatting.
     # https://pkg.go.dev/cmd/gofmt
     # Default: []
