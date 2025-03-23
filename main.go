@@ -153,7 +153,7 @@ func run() error {
 			return err
 		}
 
-		if !(result["isWritablePrimary"].(bool) || result["secondary"].(bool)) {
+		if !(result["isWritablePrimary"].(bool) || result["secondary"].(bool)) { //nolint:errcheck
 			return errors.New("not ready")
 		}
 	} else if *cmdping {
