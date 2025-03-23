@@ -153,12 +153,11 @@ func run() error {
 			return err
 		}
 
-		if !(result["isWritablePrimary"].(bool) || result["secondary"].(bool)) {
+		if !(result["isWritablePrimary"].(bool) || result["secondary"].(bool)) { //nolint:errcheck
 			return errors.New("not ready")
 		}
 	} else if *cmdping {
 		// Send a ping to confirm a successful connection
-		// if err := client.Database(*cmddbname).RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}); err != nil {
 		if err := client.Ping(context.TODO(), nil); err != nil {
 			return errors.New("not alive")
 		}
