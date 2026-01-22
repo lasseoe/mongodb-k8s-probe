@@ -2,7 +2,7 @@ module github.com/lasseoe/mongodb-k8s-probe
 
 go 1.24.1
 
-require go.mongodb.org/mongo-driver v1.17.3
+require go.mongodb.org/mongo-driver v1.17.7
 
 require (
 	github.com/golang/snappy v1.0.0 // indirect
