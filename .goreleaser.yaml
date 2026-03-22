@@ -27,7 +27,7 @@ checksum:
   split: true
 
 archives:
-  - format: tar.gz
+  - formats: [ 'tar.gz' ]
     # this name template makes the OS and Arch compatible with the results of `uname`.
       # {{- title .Os }}_
     name_template: >-
