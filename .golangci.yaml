@@ -1,55 +1,47 @@
+version: "2"
 run:
   concurrency: 4
-  timeout: 5m
   issues-exit-code: 8
   tests: false
-
 output:
-  print-issued-lines: true
-  print-linter-name: true
   path-prefix: ""
-  sort-results: true
-
+linters:
+  default: none
+  enable:
+    - dupl
+    - errcheck
+    - goconst
+    - gocritic
+    - gosec
+    - govet
+    - prealloc
+    - revive
+    - staticcheck
+    - tagliatelle
+  settings:
+    dupl:
+      threshold: 100
+    errcheck:
+      check-type-assertions: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
   uniq-by-line: false
-
-linters:
-  disable-all: true
-
+formatters:
   enable:
-    # bugs/error
-    - staticcheck
-    - revive
-    - govet
-    - errcheck
-    - gosec
-    - dupl
-
-    # performance
-    - gocritic
-    - prealloc
-
-    # style, formatting
-    - stylecheck
-    - goconst
     - gofmt
-    - tagliatelle
-
-linters-settings:
-  errcheck:
-    # Report about not checking of errors in type assertions: `a := b.(MyStruct)`.
-    # Such cases aren't reported by default.
-    # Default: false
-    check-type-assertions: true
-  #gofmt:
-    # Apply the rewrite rules to the source before reformatting.
-    # https://pkg.go.dev/cmd/gofmt
-    # Default: []
-    #rewrite-rules:
-      #- pattern: 'interface{}'
-      #  replacement: 'any'
-      #- pattern: 'a[b:len(a)]'
-      #  replacement: 'a[b:]'
-  dupl:
-    # Tokens count to trigger issue, Default: 150
-    threshold: 100
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
