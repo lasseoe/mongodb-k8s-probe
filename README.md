@@ -68,7 +68,7 @@ customLivenessProbe:
 
 initContainers:
   - name: download-mongodb-k8s-probe
-    image: quay.io/curl/curl:8.20.0
+    image: quay.io/curl/curl:8.21.0
     imagePullPolicy: Always
     command:
       - sh
