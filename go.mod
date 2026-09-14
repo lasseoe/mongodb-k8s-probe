@@ -2,7 +2,7 @@ module github.com/lasseoe/mongodb-k8s-probe
 
 go 1.26.0
 
-require go.mongodb.org/mongo-driver/v2 v2.9.0
+require go.mongodb.org/mongo-driver/v2 v2.9.1
 
 require (
 	github.com/klauspost/compress v1.20.0 // indirect
