@@ -68,7 +68,7 @@ customLivenessProbe:
 
 initContainers:
   - name: download-mongodb-k8s-probe
-    image: quay.io/curl/curl:8.21.0
+    image: quay.io/curl/curl:8.23.0
     imagePullPolicy: Always
     command:
       - sh
@@ -107,7 +107,7 @@ You may want to add securityContext and resources sections to your production YA
 
 ## MIT License
 
-Copyright (c) 2026 Lasse Østerild
+Copyright (c) 2024-2026 Lasse Østerild
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
